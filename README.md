@@ -47,10 +47,11 @@ SESSION_NAME=/data/telegram_forwarder_session
 `SOURCE_CHAT` puede ser:
 
 - un ID numérico, por ejemplo `-1001234567890`
+- varios IDs separados por coma, por ejemplo `-1001234567890,-1009876543210`
 - un username, por ejemplo `mi_canal`
 - un enlace tipo `https://t.me/mi_canal`
 
-Si parece número, el script lo convierte a `int`.
+Si cada valor parece número, el script lo convierte a `int`. Para varios chats se recomienda usar IDs numéricos.
 
 ## Panel web
 
@@ -228,7 +229,7 @@ mason-telegram-forwarder/
 
 Para instalarla como tienda comunitaria:
 
-1. Espera a que GitHub Actions publique `ghcr.io/blulyk/telegram-forwarder:0.1.2`.
+1. Espera a que GitHub Actions publique `ghcr.io/blulyk/telegram-forwarder:0.1.3`.
 2. En Umbrel, ve a App Store y anade `https://github.com/Blulyk/mason-telegram-forwarder` como Community App Store.
 3. Instala `Telegram Forwarder` desde la tienda comunitaria.
 

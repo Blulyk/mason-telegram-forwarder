@@ -4,7 +4,7 @@ name: Telegram Forwarder
 tagline: Forward Telegram messages to n8n
 icon: https://raw.githubusercontent.com/Blulyk/mason-telegram-forwarder/main/mason-telegram-forwarder/icon.svg
 category: automation
-version: "0.1.2"
+version: "0.1.3"
 port: 8080
 description: >-
   Manage a Telethon client session for a real Telegram account, listen to one
@@ -18,9 +18,9 @@ repo: https://github.com/Blulyk/mason-telegram-forwarder
 support: https://github.com/Blulyk/mason-telegram-forwarder/issues
 gallery: []
 releaseNotes: >-
-  Fixes Umbrel dashboard startup by explicitly running the web UI service,
-  updates the compose format for current Umbrel versions, and keeps persistent
-  Telethon session storage.
+  Adds support for listening to multiple Telegram source chats separated by
+  commas in SOURCE_CHAT while keeping the same persistent config and session
+  storage.
 dependencies: []
 path: ""
 defaultUsername: ""

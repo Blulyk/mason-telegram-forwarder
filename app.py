@@ -26,21 +26,37 @@ def require_env(name: str) -> str:
     return value
 
 
-def parse_source_chat(source_chat: str):
-    source_chat = source_chat.strip()
+def parse_single_source_chat(source_chat: str):
+    value = source_chat.strip()
 
     try:
-        return int(source_chat)
+        return int(value)
     except ValueError:
         pass
 
-    if source_chat.startswith("https://t.me/"):
-        return source_chat.removeprefix("https://t.me/").strip("/")
+    if value.startswith("https://t.me/"):
+        return value.removeprefix("https://t.me/").strip("/")
 
-    if source_chat.startswith("http://t.me/"):
-        return source_chat.removeprefix("http://t.me/").strip("/")
+    if value.startswith("http://t.me/"):
+        return value.removeprefix("http://t.me/").strip("/")
 
-    return source_chat
+    return value
+
+
+def parse_source_chats(source_chat: str):
+    chats = [
+        parse_single_source_chat(part)
+        for part in source_chat.split(",")
+        if part.strip()
+    ]
+
+    if not chats:
+        raise RuntimeError("SOURCE_CHAT must include at least one chat")
+
+    if len(chats) == 1:
+        return chats[0]
+
+    return chats
 
 
 def wait_for_config(path: str):
@@ -65,7 +81,7 @@ session_path = Path(session_name).expanduser()
 if session_path.parent != Path("."):
     session_path.parent.mkdir(parents=True, exist_ok=True)
 
-source_chat_parsed = parse_source_chat(source_chat)
+source_chat_parsed = parse_source_chats(source_chat)
 client = TelegramClient(str(session_path), api_id, api_hash)
 
 

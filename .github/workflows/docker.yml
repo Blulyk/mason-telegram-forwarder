@@ -35,5 +35,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/blulyk/telegram-forwarder:0.1.2
+            ghcr.io/blulyk/telegram-forwarder:0.1.3
             ghcr.io/blulyk/telegram-forwarder:latest
