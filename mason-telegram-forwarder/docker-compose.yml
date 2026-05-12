@@ -1,0 +1,29 @@
+version: "3.7"
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: mason-telegram-forwarder_web_1
+      APP_PORT: 8080
+
+  web:
+    image: ghcr.io/blulyk/telegram-forwarder:0.1.0
+    restart: on-failure
+    stop_grace_period: 1m
+    environment:
+      DATA_DIR: /data
+      ENV_FILE: /data/config.env
+      PORT: 8080
+    volumes:
+      - ${APP_DATA_DIR}/data:/data
+
+  forwarder:
+    image: ghcr.io/blulyk/telegram-forwarder:0.1.0
+    restart: on-failure
+    stop_grace_period: 1m
+    command: python app.py
+    environment:
+      ENV_FILE: /data/config.env
+      SESSION_NAME: /data/telegram_forwarder_session
+    volumes:
+      - ${APP_DATA_DIR}/data:/data

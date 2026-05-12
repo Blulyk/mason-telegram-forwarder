@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Telegram Forwarder</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">UmbrelOS</p>
+          <h1>Telegram Forwarder</h1>
+        </div>
+        <div class="status-row">
+          <span class="pill {{ 'ok' if authorized else 'warn' }}">{{ 'Telegram conectado' if authorized else 'Login pendiente' }}</span>
+          <span class="pill {{ 'ok' if status.configured else 'warn' }}">{{ 'Config completa' if status.configured else 'Falta config' }}</span>
+        </div>
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <section class="messages">
+            {% for category, message in messages %}
+              <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+          </section>
+        {% endif %}
+      {% endwith %}
+
+      <section class="grid">
+        <form class="panel" method="post" action="/config">
+          <div class="panel-heading">
+            <h2>Configuracion</h2>
+            <p>Guarda secretos en el volumen persistente, no en el codigo.</p>
+          </div>
+
+          <label>
+            API ID
+            <input name="TELEGRAM_API_ID" value="{{ config.TELEGRAM_API_ID }}" inputmode="numeric" placeholder="12345678">
+          </label>
+
+          <label>
+            API Hash
+            <input name="TELEGRAM_API_HASH" value="" placeholder="{{ public_config.TELEGRAM_API_HASH or 'Pegar solo para guardar o cambiar' }}">
+          </label>
+
+          <label>
+            Chat origen
+            <input name="SOURCE_CHAT" value="{{ config.SOURCE_CHAT }}" placeholder="-1001234567890, username o https://t.me/...">
+          </label>
+
+          <label>
+            Webhook n8n
+            <input name="N8N_WEBHOOK_URL" value="{{ config.N8N_WEBHOOK_URL }}" placeholder="https://n8n.../webhook/telegram-forward">
+          </label>
+
+          <label>
+            Nombre/ruta de sesion
+            <input name="SESSION_NAME" value="{{ config.SESSION_NAME }}">
+          </label>
+
+          <button type="submit">Guardar configuracion</button>
+        </form>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <h2>Login Telegram</h2>
+            <p>Usa tu cuenta real de Telegram mediante Telethon.</p>
+          </div>
+
+          <form method="post" action="/login/request-code" class="stack">
+            <label>
+              Telefono
+              <input name="phone" placeholder="+34XXXXXXXXX">
+            </label>
+            <button type="submit">Pedir codigo</button>
+          </form>
+
+          <form method="post" action="/login/verify" class="stack compact">
+            <label>
+              Codigo
+              <input name="code" placeholder="12345">
+            </label>
+            <label>
+              Contrasena 2FA
+              <input name="password" type="password" placeholder="Solo si la cuenta la tiene">
+            </label>
+            <button type="submit">Completar login</button>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <h2>Herramientas</h2>
+            <p>Lista chats y prueba n8n antes de activar produccion.</p>
+          </div>
+
+          <form method="post" action="/dialogs">
+            <button type="submit">Listar chats</button>
+          </form>
+
+          <form method="post" action="/test-webhook">
+            <button type="submit" class="secondary">Probar webhook</button>
+          </form>
+
+          <div class="meta">
+            <div>
+              <span>Config</span>
+              <code>{{ status.config_file }}</code>
+            </div>
+            <div>
+              <span>Sesion</span>
+              <code>{{ status.session_file }}</code>
+            </div>
+            <div>
+              <span>Archivo de sesion</span>
+              <strong>{{ 'Existe' if status.session_file_exists else 'Aun no existe' }}</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel wide">
+          <div class="panel-heading">
+            <h2>Chats</h2>
+            <p>Copia el ID del chat que quieras escuchar en Chat origen.</p>
+          </div>
+
+          {% if dialogs %}
+            <div class="dialog-list">
+              {% for dialog in dialogs %}
+                <div class="dialog-row">
+                  <span>{{ dialog.name }}</span>
+                  <code>{{ dialog.id }}</code>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="empty">Pulsa Listar chats despues de iniciar sesion.</div>
+          {% endif %}
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

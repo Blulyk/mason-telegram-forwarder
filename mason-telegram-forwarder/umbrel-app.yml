@@ -1,0 +1,26 @@
+manifestVersion: 1
+id: mason-telegram-forwarder
+name: Telegram Forwarder
+tagline: Forward Telegram messages to n8n
+icon: https://raw.githubusercontent.com/Blulyk/mason-telegram-forwarder/main/mason-telegram-forwarder/icon.svg
+category: automation
+version: "0.1.0"
+port: 8080
+description: >-
+  Manage a Telethon client session for a real Telegram account, listen to one
+  selected source chat, and forward new messages to an n8n webhook for delivery
+  to WhatsApp or other destinations.
+developer: Mason
+website: https://github.com/Blulyk/mason-telegram-forwarder
+submitter: Blulyk
+submission: https://github.com/Blulyk/mason-telegram-forwarder
+repo: https://github.com/Blulyk/mason-telegram-forwarder
+support: https://github.com/Blulyk/mason-telegram-forwarder/issues
+gallery: []
+releaseNotes: >-
+  Initial local package with web configuration UI, Telethon login, chat listing,
+  webhook testing, and persistent session storage.
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

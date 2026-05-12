@@ -1,0 +1,25 @@
+services:
+  web:
+    build: .
+    container_name: telegram-forwarder-web
+    restart: unless-stopped
+    command: python web.py
+    environment:
+      DATA_DIR: /data
+      ENV_FILE: /data/config.env
+      PORT: 8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/data
+
+  forwarder:
+    build: .
+    container_name: telegram-forwarder
+    restart: unless-stopped
+    command: python app.py
+    environment:
+      ENV_FILE: /data/config.env
+      SESSION_NAME: /data/telegram_forwarder_session
+    volumes:
+      - ./data:/data
