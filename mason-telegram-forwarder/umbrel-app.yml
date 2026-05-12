@@ -4,7 +4,7 @@ name: Telegram Forwarder
 tagline: Forward Telegram messages to n8n
 icon: https://raw.githubusercontent.com/Blulyk/mason-telegram-forwarder/main/mason-telegram-forwarder/icon.svg
 category: automation
-version: "0.1.4"
+version: "0.1.5"
 port: 8080
 description: >-
   Manage a Telethon client session for a real Telegram account, listen to one
@@ -18,9 +18,9 @@ repo: https://github.com/Blulyk/mason-telegram-forwarder
 support: https://github.com/Blulyk/mason-telegram-forwarder/issues
 gallery: []
 releaseNotes: >-
-  Prevents Telegram session database locks during first login by making the
-  forwarder wait for the persistent session file before connecting. The UI no
-  longer opens the Telethon session just to render the dashboard.
+  Prevents session database locks during login by making the forwarder wait
+  until the Telethon SQLite session contains a real auth key, not just until
+  the session file exists.
 dependencies: []
 path: ""
 defaultUsername: ""

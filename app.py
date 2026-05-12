@@ -1,5 +1,6 @@
 import logging
 import os
+import sqlite3
 import time
 from pathlib import Path
 
@@ -77,12 +78,30 @@ def session_file_for(session_name: str) -> Path:
 
 def wait_for_session(session_name: str):
     session_file = session_file_for(session_name)
-    while not session_file.exists():
+
+    while not session_is_authorized(session_file):
         logging.warning(
-            "Waiting for Telegram session file before starting forwarder: %s",
+            "Waiting for authorized Telegram session before starting forwarder: %s",
             session_file,
         )
         time.sleep(10)
+
+
+def session_is_authorized(session_file: Path) -> bool:
+    if not session_file.exists():
+        return False
+
+    try:
+        connection = sqlite3.connect(f"file:{session_file}?mode=ro", uri=True, timeout=1)
+        try:
+            row = connection.execute(
+                "select auth_key from sessions where auth_key is not null limit 1"
+            ).fetchone()
+            return bool(row and row[0])
+        finally:
+            connection.close()
+    except sqlite3.Error:
+        return False
 
 
 wait_for_config(env_file)
