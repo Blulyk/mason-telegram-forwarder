@@ -1,6 +1,8 @@
 import asyncio
 import json
 import os
+import sqlite3
+import tempfile
 from pathlib import Path
 
 import requests
@@ -51,6 +53,40 @@ def session_file_for(session_name):
     return Path(f"{session_name}.session")
 
 
+def session_is_authorized(session_name):
+    session_file = session_file_for(session_name)
+    if not session_file.exists():
+        return False
+
+    try:
+        connection = sqlite3.connect(f"file:{session_file}?mode=ro", uri=True, timeout=1)
+        try:
+            row = connection.execute(
+                "select auth_key from sessions where auth_key is not null limit 1"
+            ).fetchone()
+            return bool(row and row[0])
+        finally:
+            connection.close()
+    except sqlite3.Error:
+        return False
+
+
+def make_session_snapshot(session_name, destination_session_name):
+    source_file = session_file_for(session_name)
+    destination_file = session_file_for(destination_session_name)
+
+    if not source_file.exists():
+        raise RuntimeError("La sesion de Telegram aun no existe.")
+
+    source = sqlite3.connect(f"file:{source_file}?mode=ro", uri=True, timeout=5)
+    destination = sqlite3.connect(destination_file)
+    try:
+        source.backup(destination)
+    finally:
+        destination.close()
+        source.close()
+
+
 def masked(value, visible=4):
     if not value:
         return ""
@@ -72,6 +108,9 @@ def client_from_config(config):
 
 
 async def request_login_code(config, phone):
+    if session_is_authorized(config.get("SESSION_NAME") or DEFAULT_SESSION_NAME):
+        raise RuntimeError("Ya existe una sesion de Telegram iniciada. No hace falta pedir otro codigo.")
+
     client = client_from_config(config)
     await client.connect()
     try:
@@ -120,17 +159,24 @@ async def is_authorized(config):
 
 
 async def get_dialogs(config):
-    client = client_from_config(config)
-    await client.connect()
-    try:
-        if not await client.is_user_authorized():
-            raise RuntimeError("La cuenta de Telegram aun no esta autorizada.")
-        dialogs = []
-        async for dialog in client.iter_dialogs(limit=200):
-            dialogs.append({"name": dialog.name, "id": dialog.id})
-        return dialogs
-    finally:
-        await client.disconnect()
+    session_name = config.get("SESSION_NAME") or DEFAULT_SESSION_NAME
+    if not session_is_authorized(session_name):
+        raise RuntimeError("La cuenta de Telegram aun no esta autorizada.")
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        snapshot_session_name = str(Path(temp_dir) / "telegram_forwarder_snapshot")
+        make_session_snapshot(session_name, snapshot_session_name)
+
+        snapshot_config = {**config, "SESSION_NAME": snapshot_session_name}
+        client = client_from_config(snapshot_config)
+        await client.connect()
+        try:
+            dialogs = []
+            async for dialog in client.iter_dialogs(limit=200):
+                dialogs.append({"name": dialog.name, "id": dialog.id})
+            return dialogs
+        finally:
+            await client.disconnect()
 
 
 def config_status(config):
@@ -151,7 +197,7 @@ def config_status(config):
 def index():
     config = load_config()
     status = config_status(config)
-    authorized = status["session_file_exists"]
+    authorized = session_is_authorized(config["SESSION_NAME"])
     public_config = {**config, "TELEGRAM_API_HASH": masked(config["TELEGRAM_API_HASH"])}
     return render_template("index.html", config=config, public_config=public_config, status=status, authorized=authorized, dialogs=None)
 
@@ -211,7 +257,7 @@ def dialogs():
     try:
         dialog_list = asyncio.run(get_dialogs(config))
         status = config_status(config)
-        authorized = status["session_file_exists"]
+        authorized = session_is_authorized(config["SESSION_NAME"])
         public_config = {**config, "TELEGRAM_API_HASH": masked(config["TELEGRAM_API_HASH"])}
         return render_template("index.html", config=config, public_config=public_config, status=status, authorized=authorized, dialogs=dialog_list)
     except Exception as exc:
