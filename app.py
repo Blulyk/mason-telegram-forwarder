@@ -4,7 +4,7 @@ import time
 from pathlib import Path
 
 import requests
-from dotenv import load_dotenv, dotenv_values
+from dotenv import load_dotenv
 from telethon import TelegramClient, events
 
 
@@ -68,6 +68,23 @@ def wait_for_config(path: str):
         time.sleep(10)
 
 
+def session_file_for(session_name: str) -> Path:
+    session_path = Path(session_name).expanduser()
+    if str(session_path).endswith(".session"):
+        return session_path
+    return Path(f"{session_path}.session")
+
+
+def wait_for_session(session_name: str):
+    session_file = session_file_for(session_name)
+    while not session_file.exists():
+        logging.warning(
+            "Waiting for Telegram session file before starting forwarder: %s",
+            session_file,
+        )
+        time.sleep(10)
+
+
 wait_for_config(env_file)
 load_dotenv(env_file, override=True)
 
@@ -80,6 +97,8 @@ session_name = os.getenv("SESSION_NAME", "telegram_forwarder_session")
 session_path = Path(session_name).expanduser()
 if session_path.parent != Path("."):
     session_path.parent.mkdir(parents=True, exist_ok=True)
+
+wait_for_session(str(session_path))
 
 source_chat_parsed = parse_source_chats(source_chat)
 client = TelegramClient(str(session_path), api_id, api_hash)

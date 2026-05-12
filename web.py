@@ -151,7 +151,7 @@ def config_status(config):
 def index():
     config = load_config()
     status = config_status(config)
-    authorized = asyncio.run(is_authorized(config)) if config["TELEGRAM_API_ID"] and config["TELEGRAM_API_HASH"] else False
+    authorized = status["session_file_exists"]
     public_config = {**config, "TELEGRAM_API_HASH": masked(config["TELEGRAM_API_HASH"])}
     return render_template("index.html", config=config, public_config=public_config, status=status, authorized=authorized, dialogs=None)
 
@@ -211,7 +211,7 @@ def dialogs():
     try:
         dialog_list = asyncio.run(get_dialogs(config))
         status = config_status(config)
-        authorized = asyncio.run(is_authorized(config))
+        authorized = status["session_file_exists"]
         public_config = {**config, "TELEGRAM_API_HASH": masked(config["TELEGRAM_API_HASH"])}
         return render_template("index.html", config=config, public_config=public_config, status=status, authorized=authorized, dialogs=dialog_list)
     except Exception as exc:

@@ -229,7 +229,7 @@ mason-telegram-forwarder/
 
 Para instalarla como tienda comunitaria:
 
-1. Espera a que GitHub Actions publique `ghcr.io/blulyk/telegram-forwarder:0.1.3`.
+1. Espera a que GitHub Actions publique `ghcr.io/blulyk/telegram-forwarder:0.1.4`.
 2. En Umbrel, ve a App Store y anade `https://github.com/Blulyk/mason-telegram-forwarder` como Community App Store.
 3. Instala `Telegram Forwarder` desde la tienda comunitaria.
 
