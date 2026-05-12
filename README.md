@@ -14,7 +14,7 @@ No usa un bot para leer el chat origen. Telethon inicia sesión como cliente de 
 - `Dockerfile`: imagen del servicio.
 - `docker-compose.yml`: interfaz web y forwarder con reinicio automático.
 - `data/`: carpeta persistente para la sesión de Telethon cuando se usa Docker.
-- `umbrel-store/`: plantilla para publicar como Community App Store de Umbrel.
+- `umbrel-app-store.yml` y `mason-telegram-forwarder/`: tienda comunitaria de Umbrel lista para anadir desde Umbrel.
 
 ## Conseguir TELEGRAM_API_ID y TELEGRAM_API_HASH
 
@@ -215,26 +215,22 @@ docker compose restart web
 
 ## Umbrel Community App Store
 
-La carpeta `umbrel-store/` contiene una plantilla de Community App Store de Umbrel:
+El repositorio esta preparado como Community App Store de Umbrel:
 
 ```text
-umbrel-store/
-  umbrel-app-store.yml
-  mason-telegram-forwarder/
-    umbrel-app.yml
-    docker-compose.yml
-    exports.sh
-    icon.svg
+umbrel-app-store.yml
+mason-telegram-forwarder/
+  umbrel-app.yml
+  docker-compose.yml
+  exports.sh
+  icon.svg
 ```
 
-No puedo publicar la app oficial de Umbrel desde esta máquina sin tu cuenta, repositorio e imagen Docker publicada, pero la estructura queda lista.
+Para instalarla como tienda comunitaria:
 
-Para publicarla como tienda comunitaria:
-
-1. Sube la imagen Docker a GHCR o Docker Hub.
-2. Espera a que GitHub Actions publique `ghcr.io/blulyk/telegram-forwarder:0.1.0`.
-3. En Umbrel, ve a App Store y añade `https://github.com/Blulyk/mason-telegram-forwarder` como Community App Store.
-4. Instala `Telegram Forwarder` desde la tienda comunitaria.
+1. Espera a que GitHub Actions publique `ghcr.io/blulyk/telegram-forwarder:0.1.0`.
+2. En Umbrel, ve a App Store y anade `https://github.com/Blulyk/mason-telegram-forwarder` como Community App Store.
+3. Instala `Telegram Forwarder` desde la tienda comunitaria.
 
 ## Parar
 
