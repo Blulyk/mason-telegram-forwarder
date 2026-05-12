@@ -130,7 +130,7 @@ source_chat_names = {chat for chat in source_chat_list if isinstance(chat, str)}
 client = TelegramClient(str(session_path), api_id, api_hash)
 
 
-@client.on(events.NewMessage)
+@client.on(events.NewMessage())
 async def handler(event):
     message = event.message
     chat_id = event.chat_id

@@ -4,7 +4,7 @@ name: Telegram Forwarder
 tagline: Forward Telegram messages to n8n
 icon: https://raw.githubusercontent.com/Blulyk/mason-telegram-forwarder/main/mason-telegram-forwarder/icon.svg
 category: automation
-version: "0.1.8"
+version: "0.1.9"
 port: 8080
 description: >-
   Manage a Telethon client session for a real Telegram account, listen to one
@@ -18,10 +18,9 @@ repo: https://github.com/Blulyk/mason-telegram-forwarder
 support: https://github.com/Blulyk/mason-telegram-forwarder/issues
 gallery: []
 releaseNotes: >-
-  Improves Telegram message detection by listening to all new updates and
-  filtering monitored chat IDs manually. Adds logs when a monitored message is
-  received before forwarding it to n8n. Re-published to force Umbrel community
-  store refresh on installs that cached the previous manifest.
+  Fixes Telethon new-message event registration after switching to manual chat
+  filtering, so incoming Telegram messages from monitored chats trigger the
+  forwarder correctly.
 dependencies: []
 path: ""
 defaultUsername: ""
