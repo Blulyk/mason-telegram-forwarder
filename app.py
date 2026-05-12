@@ -120,15 +120,26 @@ if session_path.parent != Path("."):
 wait_for_session(str(session_path))
 
 source_chat_parsed = parse_source_chats(source_chat)
+source_chat_list = (
+    source_chat_parsed
+    if isinstance(source_chat_parsed, list)
+    else [source_chat_parsed]
+)
+source_chat_ids = {chat for chat in source_chat_list if isinstance(chat, int)}
+source_chat_names = {chat for chat in source_chat_list if isinstance(chat, str)}
 client = TelegramClient(str(session_path), api_id, api_hash)
 
 
-@client.on(events.NewMessage(chats=source_chat_parsed))
+@client.on(events.NewMessage)
 async def handler(event):
     message = event.message
+    chat_id = event.chat_id
+
+    if chat_id not in source_chat_ids:
+        return
 
     payload = {
-        "chat_id": event.chat_id,
+        "chat_id": chat_id,
         "message_id": message.id,
         "sender_id": message.sender_id,
         "text": event.raw_text or "",
@@ -136,6 +147,12 @@ async def handler(event):
         "has_media": bool(message.media),
         "grouped_id": str(message.grouped_id) if message.grouped_id else None,
     }
+
+    logging.info(
+        "Received monitored message %s from chat %s",
+        message.id,
+        chat_id,
+    )
 
     try:
         response = requests.post(webhook_url, json=payload, timeout=10)
@@ -146,10 +163,16 @@ async def handler(event):
 
 
 async def main():
+    for source_chat_name in source_chat_names:
+        entity = await client.get_entity(source_chat_name)
+        resolved_chat_id = int(f"-100{entity.id}") if getattr(entity, "broadcast", False) or getattr(entity, "megagroup", False) else entity.id
+        source_chat_ids.add(resolved_chat_id)
+        logging.info("Resolved source chat %s to %s", source_chat_name, resolved_chat_id)
+
     me = await client.get_me()
     username = getattr(me, "username", None) or getattr(me, "first_name", None) or me.id
     logging.info("Logged in as: %s", username)
-    logging.info("Listening to chat: %s", source_chat_parsed)
+    logging.info("Listening to chat IDs: %s", sorted(source_chat_ids))
 
 
 if __name__ == "__main__":

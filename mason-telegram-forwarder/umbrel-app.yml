@@ -4,7 +4,7 @@ name: Telegram Forwarder
 tagline: Forward Telegram messages to n8n
 icon: https://raw.githubusercontent.com/Blulyk/mason-telegram-forwarder/main/mason-telegram-forwarder/icon.svg
 category: automation
-version: "0.1.6"
+version: "0.1.7"
 port: 8080
 description: >-
   Manage a Telethon client session for a real Telegram account, listen to one
@@ -18,9 +18,9 @@ repo: https://github.com/Blulyk/mason-telegram-forwarder
 support: https://github.com/Blulyk/mason-telegram-forwarder/issues
 gallery: []
 releaseNotes: >-
-  Avoids session database locks when listing chats by using a temporary SQLite
-  snapshot of the Telethon session. Also keeps the forwarder waiting until the
-  persistent session is fully authorized.
+  Improves Telegram message detection by listening to all new updates and
+  filtering monitored chat IDs manually. Adds logs when a monitored message is
+  received before forwarding it to n8n.
 dependencies: []
 path: ""
 defaultUsername: ""
