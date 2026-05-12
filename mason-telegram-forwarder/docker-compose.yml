@@ -5,7 +5,7 @@ services:
       APP_PORT: 8080
 
   web:
-    image: ghcr.io/blulyk/telegram-forwarder:0.1.9
+    image: ghcr.io/blulyk/telegram-forwarder:0.2.0
     restart: on-failure
     stop_grace_period: 1m
     command: ["python", "web.py"]
@@ -18,12 +18,13 @@ services:
       - ${APP_DATA_DIR}/data:/data
 
   forwarder:
-    image: ghcr.io/blulyk/telegram-forwarder:0.1.9
+    image: ghcr.io/blulyk/telegram-forwarder:0.2.0
     restart: on-failure
     stop_grace_period: 1m
     command: ["python", "app.py"]
     environment:
       ENV_FILE: /data/config.env
       SESSION_NAME: /data/telegram_forwarder_session
+      RESTART_SIGNAL_FILE: /data/restart_forwarder.signal
     volumes:
       - ${APP_DATA_DIR}/data:/data

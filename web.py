@@ -15,6 +15,7 @@ from telethon.errors import SessionPasswordNeededError
 DATA_DIR = Path(os.getenv("DATA_DIR", "/data"))
 CONFIG_FILE = Path(os.getenv("ENV_FILE", DATA_DIR / "config.env"))
 LOGIN_STATE_FILE = DATA_DIR / "login_state.json"
+RESTART_SIGNAL_FILE = DATA_DIR / "restart_forwarder.signal"
 DEFAULT_SESSION_NAME = str(DATA_DIR / "telegram_forwarder_session")
 
 app = Flask(__name__)
@@ -263,6 +264,14 @@ def dialogs():
     except Exception as exc:
         flash(f"No se pudieron listar chats: {exc}", "error")
         return redirect(url_for("index"))
+
+
+@app.post("/restart-forwarder")
+def restart_forwarder():
+    ensure_data_dir()
+    RESTART_SIGNAL_FILE.write_text("restart\n", encoding="utf-8")
+    flash("Reinicio del forwarder solicitado. Espera unos segundos y revisa los logs.", "success")
+    return redirect(url_for("index"))
 
 
 @app.post("/test-webhook")

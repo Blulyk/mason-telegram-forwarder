@@ -2,6 +2,7 @@ import logging
 import os
 import sqlite3
 import time
+import asyncio
 from pathlib import Path
 
 import requests
@@ -10,6 +11,7 @@ from telethon import TelegramClient, events
 
 
 env_file = os.getenv("ENV_FILE", ".env")
+restart_signal_file = Path(os.getenv("RESTART_SIGNAL_FILE", "/data/restart_forwarder.signal"))
 load_dotenv(env_file)
 if env_file != ".env":
     load_dotenv(".env")
@@ -163,6 +165,8 @@ async def handler(event):
 
 
 async def main():
+    restart_signal_file.unlink(missing_ok=True)
+
     for source_chat_name in source_chat_names:
         entity = await client.get_entity(source_chat_name)
         resolved_chat_id = int(f"-100{entity.id}") if getattr(entity, "broadcast", False) or getattr(entity, "megagroup", False) else entity.id
@@ -173,6 +177,18 @@ async def main():
     username = getattr(me, "username", None) or getattr(me, "first_name", None) or me.id
     logging.info("Logged in as: %s", username)
     logging.info("Listening to chat IDs: %s", sorted(source_chat_ids))
+    client.loop.create_task(watch_restart_signal())
+
+
+async def watch_restart_signal():
+    while True:
+        if restart_signal_file.exists():
+            logging.info("Restart signal received. Disconnecting forwarder.")
+            restart_signal_file.unlink(missing_ok=True)
+            await client.disconnect()
+            os._exit(1)
+            return
+        await asyncio.sleep(2)
 
 
 if __name__ == "__main__":
