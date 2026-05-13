@@ -14,7 +14,7 @@ No usa un bot para leer el chat origen. Telethon inicia sesión como cliente de 
 - `Dockerfile`: imagen del servicio.
 - `docker-compose.yml`: interfaz web y forwarder con reinicio automático.
 - `data/`: carpeta persistente para la sesión de Telethon cuando se usa Docker.
-- `umbrel-app-store.yml` y `mason-telegram-forwarder/`: tienda comunitaria de Umbrel lista para anadir desde Umbrel.
+- `umbrel-app-store.yml`, `mason-telegram-forwarder/` y `mason-waha/`: tienda comunitaria de Umbrel con Telegram Forwarder y WAHA.
 
 ## Conseguir TELEGRAM_API_ID y TELEGRAM_API_HASH
 
@@ -225,13 +225,18 @@ mason-telegram-forwarder/
   docker-compose.yml
   exports.sh
   icon.svg
+mason-waha/
+  umbrel-app.yml
+  docker-compose.yml
+  exports.sh
+  icon.svg
 ```
 
 Para instalarla como tienda comunitaria:
 
 1. Espera a que GitHub Actions publique `ghcr.io/blulyk/telegram-forwarder:0.2.0`.
 2. En Umbrel, ve a App Store y anade `https://github.com/Blulyk/mason-telegram-forwarder` como Community App Store.
-3. Instala `Telegram Forwarder` desde la tienda comunitaria.
+3. Instala `Telegram Forwarder` o `WAHA` desde la tienda comunitaria.
 
 Si Umbrel no muestra la actualizacion, fuerza el refresco por SSH:
 
@@ -247,6 +252,76 @@ En versiones antiguas puede ser:
 sudo ~/umbrel/scripts/repo update
 sudo ~/umbrel/scripts/app update mason-telegram-forwarder
 ```
+
+## WAHA en Umbrel para WhatsApp
+
+La app `WAHA` usa la imagen oficial `devlikeapro/waha` y monta la carpeta persistente de sesiones en:
+
+```text
+${APP_DATA_DIR}/sessions -> /app/.sessions
+```
+
+La interfaz ya viene incluida en WAHA. Al abrir la app desde Umbrel entra directamente a:
+
+```text
+/dashboard
+```
+
+Credenciales por defecto:
+
+- Usuario: `admin`
+- Password/API key: el password de app que muestra Umbrel en `Show default credentials`.
+
+Primer setup:
+
+1. Instala `WAHA` desde la tienda `Mason Apps`.
+2. Abre la app y entra al dashboard.
+3. Usa la API key que muestra Umbrel cuando el dashboard la pida.
+4. Arranca la sesion `default`.
+5. Escanea el QR desde WhatsApp: `Dispositivos vinculados` -> `Vincular dispositivo`.
+6. Espera a que la sesion quede en estado `WORKING`.
+
+Para enviar desde n8n usando WAHA:
+
+1. Anade un nodo `HTTP Request`.
+2. Metodo: `POST`.
+3. URL:
+
+```text
+http://umbrel.local:3000/api/sendText
+```
+
+Si n8n no resuelve `umbrel.local`, usa la IP de tu Umbrel:
+
+```text
+http://192.168.1.153:3000/api/sendText
+```
+
+4. Headers:
+
+```text
+Content-Type: application/json
+Accept: application/json
+X-Api-Key: <password/API key de WAHA en Umbrel>
+```
+
+5. Body JSON para un grupo:
+
+```json
+{
+  "session": "default",
+  "chatId": "120363000000000000@g.us",
+  "text": "{{$json.body.text}}"
+}
+```
+
+Los grupos de WhatsApp usan IDs terminados en `@g.us`. Puedes ver chats y grupos desde el dashboard de WAHA o desde Swagger en la misma app.
+
+Seguridad:
+
+- No publiques WAHA a Internet sin una capa extra de seguridad.
+- Mantener `WAHA_API_KEY` activo es obligatorio para que `/api/*` no quede abierto.
+- No borres la carpeta persistente de sesiones o tendras que escanear el QR otra vez.
 
 ## Parar
 

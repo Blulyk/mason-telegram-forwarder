@@ -1,0 +1,26 @@
+manifestVersion: 1.1
+id: mason-waha
+name: WAHA
+tagline: WhatsApp HTTP API for n8n
+icon: https://raw.githubusercontent.com/Blulyk/mason-telegram-forwarder/main/mason-waha/icon.svg
+category: automation
+version: "0.1.0"
+port: 3000
+description: >-
+  WAHA is a self-hosted WhatsApp HTTP API with a built-in dashboard. Use it to
+  connect a real WhatsApp session by QR code and let n8n send messages to
+  contacts or groups through the WAHA API.
+developer: WAHA
+website: https://waha.devlike.pro/
+submitter: Blulyk
+submission: https://github.com/Blulyk/mason-telegram-forwarder
+repo: https://github.com/devlikeapro/waha
+support: https://github.com/devlikeapro/waha/issues
+gallery: []
+releaseNotes: >-
+  Initial Umbrel package for WAHA Core with dashboard enabled, persistent
+  session storage, API key protection, and a default WhatsApp session.
+dependencies: []
+path: "/dashboard"
+defaultUsername: "admin"
+defaultPassword: "$APP_PASSWORD"

@@ -1,0 +1,23 @@
+services:
+  app_proxy:
+    environment:
+      APP_HOST: mason-waha_server_1
+      APP_PORT: 3000
+      PROXY_AUTH_WHITELIST: "/api/*"
+
+  server:
+    image: devlikeapro/waha:latest
+    restart: on-failure
+    stop_grace_period: 1m
+    environment:
+      WAHA_DASHBOARD_ENABLED: "true"
+      WAHA_DASHBOARD_USERNAME: "admin"
+      WAHA_DASHBOARD_PASSWORD: ${APP_PASSWORD}
+      WAHA_API_KEY: ${APP_PASSWORD}
+      WHATSAPP_SWAGGER_ENABLED: "true"
+      WHATSAPP_SWAGGER_USERNAME: "admin"
+      WHATSAPP_SWAGGER_PASSWORD: ${APP_PASSWORD}
+      WHATSAPP_START_SESSION: "default"
+      WAHA_PRINT_QR: "false"
+    volumes:
+      - ${APP_DATA_DIR}/sessions:/app/.sessions
