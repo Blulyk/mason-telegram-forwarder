@@ -303,13 +303,18 @@ mason-waha/
   docker-compose.yml
   exports.sh
   icon.svg
+mason-whatsapp-bridge/
+  umbrel-app.yml
+  docker-compose.yml
+  exports.sh
+  icon.svg
 ```
 
 Para instalarla como tienda comunitaria:
 
 1. Espera a que GitHub Actions publique `ghcr.io/blulyk/telegram-forwarder:0.2.0`.
 2. En Umbrel, ve a App Store y anade `https://github.com/Blulyk/mason-telegram-forwarder` como Community App Store.
-3. Instala `Telegram Forwarder` o `WAHA` desde la tienda comunitaria.
+3. Instala `Telegram Forwarder`, `WAHA` o `WhatsApp Bridge` desde la tienda comunitaria.
 
 Si Umbrel no muestra la actualizacion, fuerza el refresco por SSH:
 
@@ -397,6 +402,60 @@ Seguridad:
 - No publiques WAHA a Internet sin una capa extra de seguridad.
 - Mantener `WAHA_API_KEY` activo es obligatorio para que `/api/*` no quede abierto.
 - No borres la carpeta persistente de sesiones o tendras que escanear el QR otra vez.
+
+## WhatsApp Bridge gratis para texto y fotos
+
+`WhatsApp Bridge` es una alternativa ligera basada en `whatsapp-web.js` para enviar texto, fotos, y fotos con caption desde n8n sin WAHA Plus.
+
+Primer setup:
+
+1. Instala `WhatsApp Bridge` desde la tienda `Mason Apps`.
+2. Abre la app.
+3. Pega como API key la contraseña que muestra Umbrel en `Show default credentials`.
+4. Escanea el QR desde WhatsApp.
+5. Espera a que el estado sea `Conectado`.
+
+Endpoint unico para n8n:
+
+```text
+POST http://192.168.1.153:8090/api/send
+```
+
+Headers:
+
+```text
+Accept: application/json
+Content-Type: application/json
+X-Api-Key: <API key de WhatsApp Bridge>
+```
+
+Texto solo:
+
+```json
+{
+  "chatId": "120363424946565150@g.us",
+  "text": "{{$json.body.text}}"
+}
+```
+
+Foto sola o foto con caption:
+
+```json
+{
+  "chatId": "120363424946565150@g.us",
+  "text": "{{$json.body.text}}",
+  "file": {
+    "mimetype": "{{$json.body.media_mime_type}}",
+    "filename": "{{$json.body.media_filename}}",
+    "data": "{{$json.body.media_base64}}"
+  }
+}
+```
+
+Para evitar mandar `file` vacio en mensajes de texto, usa un nodo `IF` en n8n:
+
+- Si `{{$json.body.media_base64}}` existe, manda el body con `file`.
+- Si no existe, manda solo `chatId` y `text`.
 
 ## Parar
 

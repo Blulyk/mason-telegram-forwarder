@@ -29,7 +29,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
-      - name: Build and push
+      - name: Build and push Telegram Forwarder
         uses: docker/build-push-action@v7
         with:
           context: .
@@ -37,3 +37,12 @@ jobs:
           tags: |
             ghcr.io/blulyk/telegram-forwarder:0.3.0
             ghcr.io/blulyk/telegram-forwarder:latest
+
+      - name: Build and push WhatsApp Bridge
+        uses: docker/build-push-action@v7
+        with:
+          context: ./whatsapp-bridge
+          push: true
+          tags: |
+            ghcr.io/blulyk/whatsapp-bridge:0.1.0
+            ghcr.io/blulyk/whatsapp-bridge:latest

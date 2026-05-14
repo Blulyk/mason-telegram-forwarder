@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WhatsApp Bridge</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <p class="eyebrow">UmbrelOS</p>
+        <h1>WhatsApp Bridge</h1>
+        <div id="status" class="pill">Conectando</div>
+      </header>
+
+      <section class="panel">
+        <h2>Conexion</h2>
+        <label>
+          API key
+          <input id="apiKey" type="password" placeholder="Clave de Umbrel" autocomplete="off" />
+        </label>
+        <button id="saveKey" type="button">Guardar clave</button>
+        <p id="hint">Escanea el QR con WhatsApp para activar el puente.</p>
+      </section>
+
+      <section class="panel qr-panel">
+        <div>
+          <h2>QR</h2>
+          <p>WhatsApp -> Dispositivos vinculados -> Vincular dispositivo.</p>
+        </div>
+        <div id="qrBox" class="qr-box">Esperando QR</div>
+      </section>
+
+      <section class="panel">
+        <h2>n8n</h2>
+        <p>Endpoint unico para texto, foto, o foto con texto:</p>
+        <pre>POST http://192.168.1.153:8090/api/send</pre>
+        <pre>{
+  "chatId": "120363424946565150@g.us",
+  "text": "{{$json.body.text}}",
+  "file": {
+    "mimetype": "{{$json.body.media_mime_type}}",
+    "filename": "{{$json.body.media_filename}}",
+    "data": "{{$json.body.media_base64}}"
+  }
+}</pre>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

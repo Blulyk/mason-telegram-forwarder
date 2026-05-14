@@ -1,0 +1,26 @@
+manifestVersion: 1.1
+id: mason-whatsapp-bridge
+name: WhatsApp Bridge
+tagline: Send WhatsApp text and photos from n8n
+icon: https://raw.githubusercontent.com/Blulyk/mason-telegram-forwarder/main/mason-whatsapp-bridge/icon.svg
+category: automation
+version: "0.1.0"
+port: 8090
+description: >-
+  A small WhatsApp Web bridge for Umbrel. Scan a QR code, keep the session in a
+  persistent volume, and let n8n send text messages, photos, and photo captions
+  to WhatsApp contacts or groups through one protected HTTP endpoint.
+developer: Mason
+website: https://github.com/Blulyk/mason-telegram-forwarder
+submitter: Blulyk
+submission: https://github.com/Blulyk/mason-telegram-forwarder
+repo: https://github.com/Blulyk/mason-telegram-forwarder
+support: https://github.com/Blulyk/mason-telegram-forwarder/issues
+gallery: []
+releaseNotes: >-
+  Initial release with QR login, persistent whatsapp-web.js session, API key
+  protection, group listing, and unified text/media sending endpoint.
+dependencies: []
+path: ""
+defaultUsername: ""
+deterministicPassword: true
