@@ -199,6 +199,8 @@ Cuando el mensaje de Telegram incluye una foto, el forwarder anade estos campos:
 
 Para reenviar a WhatsApp con WAHA, deja el Webhook de Telegram Forwarder como entrada y anade un nodo `IF`.
 
+Importante: WAHA Core gratis envia texto con `sendText`, pero `sendImage` requiere WAHA Plus en el motor `NOWEB`. Si usas WAHA Core, el forwarder seguira entregando la foto a n8n como base64, pero necesitas WAHA Plus u otro sender compatible con envio de imagenes a grupos para completar el reenvio multimedia.
+
 Condicion del `IF`:
 
 ```text
