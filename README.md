@@ -267,16 +267,17 @@ La interfaz ya viene incluida en WAHA. Al abrir la app desde Umbrel entra direct
 /dashboard
 ```
 
-Credenciales por defecto:
+Credenciales y API key:
 
 - Usuario: `admin`
-- Password/API key: el password de app que muestra Umbrel en `Show default credentials`.
+- API key: el password de app que muestra Umbrel en `Show default credentials`.
+- El dashboard queda protegido por Umbrel y no pide un segundo login propio de WAHA.
 
 Primer setup:
 
 1. Instala `WAHA` desde la tienda `Mason Apps`.
 2. Abre la app y entra al dashboard.
-3. Usa la API key que muestra Umbrel cuando el dashboard la pida.
+3. Usa la API key que muestra Umbrel si el dashboard la pide para conectar con el servidor.
 4. Arranca la sesion `default`.
 5. Escanea el QR desde WhatsApp: `Dispositivos vinculados` -> `Vincular dispositivo`.
 6. Espera a que la sesion quede en estado `WORKING`.
