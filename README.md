@@ -255,7 +255,7 @@ sudo ~/umbrel/scripts/app update mason-telegram-forwarder
 
 ## WAHA en Umbrel para WhatsApp
 
-La app `WAHA` usa la imagen oficial `devlikeapro/waha` y monta la carpeta persistente de sesiones en:
+La app `WAHA` usa la imagen oficial `devlikeapro/waha:noweb` y monta la carpeta persistente de sesiones en:
 
 ```text
 ${APP_DATA_DIR}/sessions -> /app/.sessions
@@ -272,6 +272,7 @@ Credenciales y API key:
 - Usuario: `admin`
 - API key: el password de app que muestra Umbrel en `Show default credentials`.
 - El dashboard queda protegido por Umbrel y no pide un segundo login propio de WAHA.
+- El motor usado es `NOWEB`, mas ligero que `WEBJS` porque no levanta Chromium.
 
 Primer setup:
 

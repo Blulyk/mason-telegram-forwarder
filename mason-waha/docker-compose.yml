@@ -6,7 +6,7 @@ services:
       PROXY_AUTH_WHITELIST: "/api/*"
 
   server:
-    image: devlikeapro/waha:latest
+    image: devlikeapro/waha:noweb
     restart: on-failure
     stop_grace_period: 1m
     environment:
@@ -15,10 +15,12 @@ services:
       WAHA_DASHBOARD_PASSWORD: ""
       WAHA_DASHBOARD_NO_PASSWORD: "True"
       WAHA_API_KEY: ${APP_PASSWORD}
+      WAHA_API_KEY_PLAIN: ${APP_PASSWORD}
       WHATSAPP_SWAGGER_ENABLED: "true"
       WHATSAPP_SWAGGER_USERNAME: "admin"
       WHATSAPP_SWAGGER_PASSWORD: ""
       WHATSAPP_SWAGGER_NO_PASSWORD: "True"
+      WHATSAPP_DEFAULT_ENGINE: "NOWEB"
       WHATSAPP_START_SESSION: "default"
       WAHA_PRINT_QR: "false"
     volumes:
