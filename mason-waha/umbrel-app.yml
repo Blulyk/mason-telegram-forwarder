@@ -4,7 +4,7 @@ name: WAHA
 tagline: WhatsApp HTTP API for n8n
 icon: https://raw.githubusercontent.com/Blulyk/mason-telegram-forwarder/main/mason-waha/icon.svg
 category: automation
-version: "0.1.1"
+version: "0.1.2"
 port: 3000
 description: >-
   WAHA is a self-hosted WhatsApp HTTP API with a built-in dashboard. Use it to
@@ -18,9 +18,9 @@ repo: https://github.com/devlikeapro/waha
 support: https://github.com/devlikeapro/waha/issues
 gallery: []
 releaseNotes: >-
-  Disables WAHA's own dashboard and Swagger password prompts inside Umbrel so
-  setup goes straight to the QR/session screen. The API remains protected with
-  X-Api-Key for n8n.
+  Fixes WAHA dashboard access by leaving the internal dashboard and Swagger
+  passwords empty when no-password mode is enabled. The API remains protected
+  with X-Api-Key for n8n.
 dependencies: []
 path: "/dashboard"
 defaultUsername: "admin"
