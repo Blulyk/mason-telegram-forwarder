@@ -4,7 +4,7 @@ name: Telegram Forwarder
 tagline: Forward Telegram messages to n8n
 icon: https://raw.githubusercontent.com/Blulyk/mason-telegram-forwarder/main/mason-telegram-forwarder/icon.svg
 category: automation
-version: "0.2.0"
+version: "0.3.0"
 port: 8080
 description: >-
   Manage a Telethon client session for a real Telegram account, listen to one
@@ -18,9 +18,9 @@ repo: https://github.com/Blulyk/mason-telegram-forwarder
 support: https://github.com/Blulyk/mason-telegram-forwarder/issues
 gallery: []
 releaseNotes: >-
-  Adds a dashboard button to restart the forwarder without deleting persistent
-  config or the Telethon session. Keeps the fixed incoming-message event
-  registration and manual monitored-chat filtering.
+  Adds Telegram photo forwarding. Photo messages now include base64 image data,
+  MIME type, filename, and size in the n8n webhook payload while preserving text
+  messages and captions.
 dependencies: []
 path: ""
 defaultUsername: ""

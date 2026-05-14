@@ -3,11 +3,13 @@ import os
 import sqlite3
 import time
 import asyncio
+import base64
 from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
 from telethon import TelegramClient, events
+from telethon.tl.types import DocumentAttributeFilename
 
 
 env_file = os.getenv("ENV_FILE", ".env")
@@ -106,6 +108,121 @@ def session_is_authorized(session_file: Path) -> bool:
         return False
 
 
+def media_size_hint(message) -> int | None:
+    if getattr(message, "document", None) and getattr(message.document, "size", None):
+        return int(message.document.size)
+
+    if getattr(message, "photo", None) and getattr(message.photo, "sizes", None):
+        sizes = [getattr(size, "size", None) for size in message.photo.sizes]
+        sizes = [size for size in sizes if size]
+        if sizes:
+            return int(max(sizes))
+
+    return None
+
+
+def media_filename(message, mime_type: str | None) -> str:
+    document = getattr(message, "document", None)
+    if document:
+        for attribute in getattr(document, "attributes", []) or []:
+            if isinstance(attribute, DocumentAttributeFilename):
+                return attribute.file_name
+
+    extension = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "image/gif": "gif",
+    }.get(mime_type or "", "jpg")
+    return f"telegram_{message.id}.{extension}"
+
+
+def media_mime_type(message) -> str | None:
+    document = getattr(message, "document", None)
+    if document and getattr(document, "mime_type", None):
+        return document.mime_type
+
+    if getattr(message, "photo", None):
+        return "image/jpeg"
+
+    return None
+
+
+async def add_media_payload(message, payload: dict, max_media_bytes: int):
+    if not message.media:
+        return
+
+    mime_type = media_mime_type(message)
+    is_photo = bool(getattr(message, "photo", None))
+    is_image_document = bool(mime_type and mime_type.startswith("image/"))
+
+    if not is_photo and not is_image_document:
+        payload.update(
+            {
+                "media_type": "unsupported",
+                "media_mime_type": mime_type,
+                "media_error": "Only photo/image media is forwarded as base64.",
+            }
+        )
+        return
+
+    size_hint = media_size_hint(message)
+    if size_hint and size_hint > max_media_bytes:
+        payload.update(
+            {
+                "media_type": "photo" if is_photo else "image",
+                "media_mime_type": mime_type,
+                "media_size": size_hint,
+                "media_error": f"Media is larger than MAX_MEDIA_BYTES ({max_media_bytes}).",
+            }
+        )
+        return
+
+    try:
+        media_bytes = await message.download_media(file=bytes)
+    except Exception:
+        logging.exception("Failed to download media for message %s", message.id)
+        payload.update(
+            {
+                "media_type": "photo" if is_photo else "image",
+                "media_mime_type": mime_type,
+                "media_error": "Failed to download media from Telegram.",
+            }
+        )
+        return
+
+    if not media_bytes:
+        payload.update(
+            {
+                "media_type": "photo" if is_photo else "image",
+                "media_mime_type": mime_type,
+                "media_error": "Telegram returned empty media.",
+            }
+        )
+        return
+
+    if len(media_bytes) > max_media_bytes:
+        payload.update(
+            {
+                "media_type": "photo" if is_photo else "image",
+                "media_mime_type": mime_type,
+                "media_size": len(media_bytes),
+                "media_error": f"Downloaded media is larger than MAX_MEDIA_BYTES ({max_media_bytes}).",
+            }
+        )
+        return
+
+    payload.update(
+        {
+            "media_type": "photo" if is_photo else "image",
+            "media_mime_type": mime_type or "image/jpeg",
+            "media_filename": media_filename(message, mime_type),
+            "media_size": len(media_bytes),
+            "media_base64": base64.b64encode(media_bytes).decode("ascii"),
+        }
+    )
+
+
 wait_for_config(env_file)
 load_dotenv(env_file, override=True)
 
@@ -114,6 +231,7 @@ api_hash = require_env("TELEGRAM_API_HASH")
 source_chat = require_env("SOURCE_CHAT")
 webhook_url = require_env("N8N_WEBHOOK_URL")
 session_name = os.getenv("SESSION_NAME", "telegram_forwarder_session")
+max_media_bytes = int(os.getenv("MAX_MEDIA_BYTES", str(10 * 1024 * 1024)))
 
 session_path = Path(session_name).expanduser()
 if session_path.parent != Path("."):
@@ -150,10 +268,14 @@ async def handler(event):
         "grouped_id": str(message.grouped_id) if message.grouped_id else None,
     }
 
+    await add_media_payload(message, payload, max_media_bytes)
+
     logging.info(
-        "Received monitored message %s from chat %s",
+        "Received monitored message %s from chat %s (media=%s, media_type=%s)",
         message.id,
         chat_id,
+        payload["has_media"],
+        payload.get("media_type"),
     )
 
     try:

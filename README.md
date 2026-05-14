@@ -42,6 +42,7 @@ TELEGRAM_API_HASH=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 SOURCE_CHAT=-1001234567890
 N8N_WEBHOOK_URL=https://mi-dominio.com/webhook/telegram-forward
 SESSION_NAME=/data/telegram_forwarder_session
+MAX_MEDIA_BYTES=10485760
 ```
 
 `SOURCE_CHAT` puede ser:
@@ -178,6 +179,76 @@ El JSON recibido tendrá esta forma:
 ```
 
 Desde n8n puedes reenviar ese contenido a WhatsApp usando el proveedor que prefieras, por ejemplo WhatsApp Cloud API, Twilio, Evolution API, Waha u otro gateway compatible.
+
+Cuando el mensaje de Telegram incluye una foto, el forwarder anade estos campos:
+
+```json
+{
+  "has_media": true,
+  "media_type": "photo",
+  "media_mime_type": "image/jpeg",
+  "media_filename": "telegram_123.jpg",
+  "media_size": 123456,
+  "media_base64": "..."
+}
+```
+
+`text` contiene el caption si la foto venia con texto. `MAX_MEDIA_BYTES` limita el tamano maximo de la imagen descargada desde Telegram; por defecto son 10 MB.
+
+## n8n: texto, foto y foto con texto hacia WAHA
+
+Para reenviar a WhatsApp con WAHA, deja el Webhook de Telegram Forwarder como entrada y anade un nodo `IF`.
+
+Condicion del `IF`:
+
+```text
+{{$json.body.media_base64}}
+```
+
+Si existe `media_base64`, llama a WAHA `sendImage`:
+
+```text
+POST http://192.168.1.153:3000/api/sendImage
+```
+
+Headers:
+
+```text
+Accept: application/json
+Content-Type: application/json
+X-Api-Key: <API key de WAHA>
+```
+
+Body JSON:
+
+```json
+{
+  "session": "default",
+  "chatId": "120363424946565150@g.us",
+  "file": {
+    "mimetype": "{{$json.body.media_mime_type}}",
+    "filename": "{{$json.body.media_filename}}",
+    "data": "{{$json.body.media_base64}}"
+  },
+  "caption": "{{$json.body.text}}"
+}
+```
+
+Si no existe `media_base64`, llama a WAHA `sendText`:
+
+```text
+POST http://192.168.1.153:3000/api/sendText
+```
+
+Body JSON:
+
+```json
+{
+  "session": "default",
+  "chatId": "120363424946565150@g.us",
+  "text": "{{$json.body.text}}"
+}
+```
 
 ## Levantar como servicio
 
