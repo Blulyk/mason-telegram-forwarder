@@ -1,4 +1,5 @@
 import express from "express";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import qrcode from "qrcode";
@@ -24,6 +25,29 @@ let ready = false;
 let authenticated = false;
 let lastError = null;
 let me = null;
+
+function removeChromiumProfileLocks(rootDir) {
+  if (!fs.existsSync(rootDir)) return;
+
+  const lockFileNames = new Set(["SingletonLock", "SingletonSocket", "SingletonCookie"]);
+  for (const entry of fs.readdirSync(rootDir, { withFileTypes: true })) {
+    const fullPath = path.join(rootDir, entry.name);
+
+    if (entry.isDirectory()) {
+      removeChromiumProfileLocks(fullPath);
+      continue;
+    }
+
+    if (!lockFileNames.has(entry.name)) continue;
+
+    try {
+      fs.rmSync(fullPath, { force: true });
+      console.log(`Removed stale Chromium profile lock: ${fullPath}`);
+    } catch (error) {
+      console.warn(`Could not remove Chromium profile lock ${fullPath}: ${error.message}`);
+    }
+  }
+}
 
 function requireApiKey(req, res, next) {
   if (!API_KEY) {
@@ -58,6 +82,8 @@ function mediaFromPayload(file) {
 
   return null;
 }
+
+removeChromiumProfileLocks(path.join(DATA_DIR, "auth"));
 
 const client = new Client({
   authStrategy: new LocalAuth({

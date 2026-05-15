@@ -45,4 +45,5 @@ jobs:
           push: true
           tags: |
             ghcr.io/blulyk/whatsapp-bridge:0.1.0
+            ghcr.io/blulyk/whatsapp-bridge:0.1.1
             ghcr.io/blulyk/whatsapp-bridge:latest
