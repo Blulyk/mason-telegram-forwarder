@@ -1,31 +1,39 @@
+version: "3.7"
+
 services:
   app_proxy:
     environment:
       APP_HOST: mason-telegram-forwarder_web_1
       APP_PORT: 8080
+    depends_on:
+      - web
 
   web:
     image: ghcr.io/blulyk/telegram-forwarder:0.3.0
+    container_name: mason-telegram-forwarder_web_1
     restart: on-failure
     stop_grace_period: 1m
     command: ["python", "web.py"]
     environment:
-      DATA_DIR: /data
-      ENV_FILE: /data/config.env
+      DATA_DIR: "/data"
+      ENV_FILE: "/data/config.env"
       PORT: 8080
-      FLASK_SECRET_KEY: ${APP_SEED}
+      FLASK_SECRET_KEY: "${APP_SEED}"
     volumes:
-      - ${APP_DATA_DIR}/data:/data
+      - "${APP_DATA_DIR}/data:/data"
 
   forwarder:
     image: ghcr.io/blulyk/telegram-forwarder:0.3.0
+    container_name: mason-telegram-forwarder_forwarder_1
     restart: on-failure
     stop_grace_period: 1m
     command: ["python", "app.py"]
     environment:
-      ENV_FILE: /data/config.env
-      SESSION_NAME: /data/telegram_forwarder_session
-      RESTART_SIGNAL_FILE: /data/restart_forwarder.signal
+      ENV_FILE: "/data/config.env"
+      SESSION_NAME: "/data/telegram_forwarder_session"
+      RESTART_SIGNAL_FILE: "/data/restart_forwarder.signal"
       MAX_MEDIA_BYTES: 10485760
     volumes:
-      - ${APP_DATA_DIR}/data:/data
+      - "${APP_DATA_DIR}/data:/data"
+    depends_on:
+      - web
