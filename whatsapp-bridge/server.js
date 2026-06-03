@@ -199,7 +199,10 @@ app.post("/api/send", requireApiKey, async (req, res) => {
     });
   } catch (error) {
     console.error("Failed to send message", error);
-    res.status(400).json({ error: error.message || String(error) });
+    res.status(400).json({
+      error: error.message || String(error),
+      code: error.name || "SendMessageError",
+    });
   }
 });
 

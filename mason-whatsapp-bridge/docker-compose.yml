@@ -6,7 +6,7 @@ services:
       PROXY_AUTH_WHITELIST: "/api/*"
 
   server:
-    image: ghcr.io/blulyk/whatsapp-bridge:0.1.1
+    image: ghcr.io/blulyk/whatsapp-bridge:0.1.2
     restart: on-failure
     stop_grace_period: 1m
     environment:

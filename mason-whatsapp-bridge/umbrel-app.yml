@@ -4,7 +4,7 @@ name: WhatsApp Bridge
 tagline: Send WhatsApp text and photos from n8n
 icon: https://raw.githubusercontent.com/Blulyk/mason-telegram-forwarder/main/mason-whatsapp-bridge/icon.svg
 category: automation
-version: "0.1.1"
+version: "0.1.2"
 port: 8090
 description: >-
   A small WhatsApp Web bridge for Umbrel. Scan a QR code, keep the session in a
@@ -18,8 +18,8 @@ repo: https://github.com/Blulyk/mason-telegram-forwarder
 support: https://github.com/Blulyk/mason-telegram-forwarder/issues
 gallery: []
 releaseNotes: >-
-  Removes stale Chromium profile lock files before startup so the bridge can
-  recover cleanly after an Umbrel reboot without losing the WhatsApp session.
+  Updates whatsapp-web.js to 1.34.7 to recover from recent WhatsApp Web
+  JavaScript changes that could break sending with PollVoteNotification errors.
 dependencies: []
 path: ""
 defaultUsername: ""
